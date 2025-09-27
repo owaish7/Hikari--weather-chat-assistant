@@ -1,23 +1,55 @@
-
 import { useState, useCallback, useEffect } from 'react';
 
+// Minimal typings for browsers' Web Speech API (standard + webkit)
+type SpeechRecognitionConstructor = new () => SpeechRecognitionInstance;
 
-const SpeechRecognition =
-    (typeof window !== 'undefined' && (window as any).SpeechRecognition) ||
-    (typeof window !== 'undefined' && (window as any).webkitSpeechRecognition);
+interface SpeechRecognitionResultLike {
+    transcript: string;
+}
+
+interface SpeechRecognitionEventLike {
+    results: ArrayLike<ArrayLike<SpeechRecognitionResultLike>>;
+}
+
+interface SpeechRecognitionErrorLike {
+    error: string;
+}
+
+interface SpeechRecognitionInstance {
+    continuous: boolean;
+    interimResults: boolean;
+    lang: string;
+    onstart: (() => void) | null;
+    onresult: ((event: SpeechRecognitionEventLike) => void) | null;
+    onerror: ((event: SpeechRecognitionErrorLike) => void) | null;
+    onend: (() => void) | null;
+    start: () => void;
+    stop: () => void;
+}
+
+interface WindowWithSpeechRecognition extends Window {
+    SpeechRecognition?: SpeechRecognitionConstructor;
+    webkitSpeechRecognition?: SpeechRecognitionConstructor;
+}
+
+const SpeechRecognitionCtor: SpeechRecognitionConstructor | undefined =
+    typeof window !== 'undefined'
+        ? ((window as WindowWithSpeechRecognition).SpeechRecognition ||
+             (window as WindowWithSpeechRecognition).webkitSpeechRecognition)
+        : undefined;
 
 export const useVoiceInput = (onTranscript: (transcript: string) => void, language: string = 'ja-JP') => {
     const [isListening, setIsListening] = useState(false);
     const [voiceError, setVoiceError] = useState<string | null>(null);
 
-    const isSupported = !!SpeechRecognition;
+    const isSupported = !!SpeechRecognitionCtor;
 
     
-    const [recognition, setRecognition] = useState<any>(null);
+    const [recognition, setRecognition] = useState<SpeechRecognitionInstance | null>(null);
 
     useEffect(() => {
-        if (isSupported) {
-            const rec = new SpeechRecognition();
+        if (isSupported && SpeechRecognitionCtor) {
+            const rec = new SpeechRecognitionCtor();
             rec.continuous = false; 
             rec.interimResults = false;
             rec.lang = language; 
@@ -27,7 +59,7 @@ export const useVoiceInput = (onTranscript: (transcript: string) => void, langua
                 setVoiceError(null);
             };
 
-            rec.onresult = (event: any) => {
+            rec.onresult = (event: SpeechRecognitionEventLike) => {
                 try {
                     if (event.results && event.results[0] && event.results[0][0]) {
                         const transcript = event.results[0][0].transcript;
@@ -42,7 +74,7 @@ export const useVoiceInput = (onTranscript: (transcript: string) => void, langua
                 }
             };
 
-            rec.onerror = (event: any) => {
+            rec.onerror = (event: SpeechRecognitionErrorLike) => {
                 console.error('Speech recognition error:', event.error);
                 if (event.error !== 'no-speech') {
                     setVoiceError(`Voice error: ${event.error}.`);
