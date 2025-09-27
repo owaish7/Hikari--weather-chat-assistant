@@ -486,7 +486,7 @@ const App: React.FC = () => {
   <div className={`${compactHeader ? 'max-w-2xl' : 'max-w-3xl'} mx-auto flex flex-row justify-between items-center ${compactHeader ? 'gap-2 flex-nowrap' : 'gap-3 flex-wrap'}`}>
           <div className="text-left">
             <h1 className={`${compactHeader ? 'text-xl' : 'text-2xl'} font-bold text-indigo-700 dark:text-indigo-300`}>
-              <span className="text-indigo-400 dark:text-indigo-400">weather-genie</span> Chat Assistant 🌤️
+              <span className="text-indigo-400 dark:text-indigo-400">Hikari</span> Weather Assistant 🌤️
             </h1>
             {!compactHeader && (
               <p className="text-gray-500 text-sm">Conversational weather-based recommendations</p>
