@@ -1,4 +1,4 @@
-## Weather Chat Assistant — Overview
+## Weather Chat Assistant — Overview(works best on chrome)
 
 A compact weather chat built with **Next.js (App Router)**. It fetches current weather from **OpenWeatherMap** and asks **Google Gemini** for short suggestions (activities, clothing, food, safety) in English or Japanese.
 
